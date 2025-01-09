@@ -1,0 +1,184 @@
+pipeline {
+    agent any
+
+    environment{
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/sylvestra81/10-MicroService-Application.git'
+            }
+        }
+        stage ('File System with OWASP DC'){
+            agent{
+                label 'slave1' // Ensure this stage runs on 'slave1'
+            }
+            steps{
+                dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'DC'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+            sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=10-microservices-application -Dsonar.projectKey=10-microservices-application \
+            -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+        stage('adservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/adservice') {
+                             sh 'docker build -t sylvestra/adservice:latest .'
+                             sh 'docker push sylvestra/adservice:latest'
+			                 sh 'docker rmi sylvestra/adservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('cartservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/cartservice/src') {
+                             sh 'docker build -t sylvestra/cartservice:latest .'
+			                 sh 'docker push sylvestra/cartservice:latest'
+			                 sh 'docker rmi sylvestra/cartservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('checkoutservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/checkoutservice') {
+                             sh 'docker build -t sylvestra/checkoutservice:latest .'
+			                 sh 'docker push sylvestra/checkoutservice:latest'
+			                 sh 'docker rmi sylvestra/checkoutservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('currencyservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/currencyservice') {
+                             sh 'docker build -t sylvestra/currencyservice:latest .'
+			                 sh 'docker push sylvestra/currencyservice:latest'
+			                 sh 'docker rmi sylvestra/currencyservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('emailservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/emailservice') {
+                             sh 'docker build -t sylvestra/emailservice:latest .'
+			                 sh 'docker push sylvestra/emailservice:latest'
+			                 sh 'docker rmi sylvestra/emailservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('frontend') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/frontend') {
+                             sh 'docker build -t sylvestra/frontend:latest .'
+			                 sh 'docker push sylvestra/frontend:latest'
+			                 sh 'docker rmi sylvestra/frontend:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('loadgenerator') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/loadgenerator') {
+                             sh 'docker build -t sylvestra/loadgenerator:latest .'
+			                 sh 'docker push sylvestra/loadgenerator:latest'
+			                 sh 'docker rmi sylvestra/loadgenerator:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('paymentservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/paymentservice') {
+                             sh 'docker build -t sylvestra/paymentservice:latest .'
+			                 sh 'docker push sylvestra/paymentservice:latest'
+			                 sh 'docker rmi sylvestra/paymentservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('productcatalogservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/productcatalogservice') {
+                             sh 'docker build -t sylvestra/productcatalogservice:latest .'
+			                 sh 'docker push sylvestra/productcatalogservice:latest'
+			                 sh 'docker rmi sylvestra/productcatalogservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('recommendationservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/recommendationservice') {
+                             sh 'docker build -t sylvestra/recommendationservice:latest .'
+			                 sh 'docker push sylvestra/recommendationservice:latest'
+			                 sh 'docker rmi sylvestra/recommendationservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('shippingservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-microservices-application/src/shippingservice') {
+                             sh 'docker build -t sylvestra/shippingservice:latest .'
+			                 sh 'docker push sylvestra/shippingservice:latest'
+			                 sh 'docker rmi sylvestra/shippingservice:latest'
+                        }
+                    }
+                }
+            }
+        }
+        stage('Kubernetes Deployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'my-eks8', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://7B81255EAB227E121F5CB338FE75486F.gr7.us-east-1.eks.amazonaws.com') {
+                    sh 'kubectl apply -f Deploymentandservice.yml'
+                    sh 'kubectl get pods'
+                    sh 'kubectl get svc'
+                }
+            }
+        }
+    }
+}
