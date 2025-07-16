@@ -1,0 +1,20 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_dynamodb_table" "vulnerability_reports" {
+  name           = "VulnerabilityReports"
+  billing_mode   = "PAY_PER_REQUEST"
+
+  hash_key       = "ReportId"
+
+  attribute {
+    name = "ReportId"
+    type = "S"
+  }
+
+  tags = {
+    Environment = "Dev"
+    Project     = "JenkinsVulnerabilityScanner"
+  }
+}
